@@ -6,8 +6,8 @@
 #include <cstdlib>
 #include <string_view>
 
-
-namespace UDPNS {
+namespace UDPNS
+{
 
     extern const int GAI_OK;
     extern const int BIND_ERROR;
@@ -18,18 +18,18 @@ namespace UDPNS {
     extern const size_t BUF_LEN;
     extern const int ADDR_LEN;
 
-
-    void* get_in_addr(struct sockaddr* sa);
+    void *get_in_addr(struct sockaddr *sa);
     bool initWSA();
 
-    class UDP {
+    class UDP
+    {
     public:
         explicit UDP() = default;
 
         // no copy-ctor
-        UDP(const UDP& arg) = delete;
+        UDP(const UDP &arg) = delete;
         // no copy-assignment
-        UDP& operator=(const UDP& rhs) = delete;
+        UDP &operator=(const UDP &rhs) = delete;
         // get sockaddr, IPv4 or IPv6:
         ~UDP();
 
@@ -50,12 +50,12 @@ namespace UDPNS {
 
         void clearAll();
 
-        //private: ŞİMDİLİK DEĞİLLER SONRADAN EKLICEZKE, ELEGANS OLCAK
-        SOCKET tx{ INVALID_SOCKET };
-        SOCKET rx{ INVALID_SOCKET };
-        struct addrinfo* results{};
-        struct addrinfo* target{};
-        char* buf{ nullptr };
+        // private: ŞİMDİLİK DEĞİLLER SONRADAN EKLICEZKE, ELEGANS OLCAK
+        SOCKET tx{INVALID_SOCKET};
+        SOCKET rx{INVALID_SOCKET};
+        struct addrinfo *results{};
+        struct addrinfo *target{};
+        char *buf{nullptr};
         size_t rx_bytes{};
         size_t tx_bytes{};
     };

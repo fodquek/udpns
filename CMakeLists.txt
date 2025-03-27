@@ -10,7 +10,7 @@ set_property(TARGET win_demo PROPERTY CXX_STANDARD 20)
 set_property(TARGET win_demo PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET win_demo PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET win_demo PROPERTY C_STANDARD 11)
-target_compile_options(win_demo PRIVATE -Wall -Wformat-overflow -Wextra -Wpedantic -pedantic-errors -Wall -Weffc++ -Wconversion -Wsign-conversion) # -Wno-c++98-compat
+# target_compile_options(win_demo PRIVATE -Wall -Wformat-overflow -Wextra -Wpedantic -pedantic-errors -Wall -Weffc++ -Wconversion -Wsign-conversion -Wno-c++98-compat)
 # target_compile_options(win_demo PRIVATE /W4 /WX /Oi /MT /permissive- /sdl)
 target_link_libraries(win_demo ws2_32)
 else()

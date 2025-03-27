@@ -5,27 +5,28 @@
 namespace UDPNS
 {
 
-    const int GAI_OK{ 0 };
-    const int BIND_ERROR{ -1 };
-    const int RECV_FORM_FLAG{ 0 };
-    const int SENDTO_FLAG{ 0 };
-    const int RECVFORM_FLAG{ 0 };
-    const std::string_view MY_PORT{ "4951" };
-    const size_t BUF_LEN{ 100 };
-    const int ADDR_LEN{ 18 };
+    const int GAI_OK{0};
+    const int BIND_ERROR{-1};
+    const int SENDTO_FLAG{0};
+    const int RECVFORM_FLAG{0};
+    const std::string_view MY_PORT{"4951"};
+    const size_t BUF_LEN{100};
+    const int ADDR_LEN{18};
 
-    void* get_in_addr(struct sockaddr* sa)
+    void *get_in_addr(struct sockaddr *sa)
     {
-        if (sa->sa_family == AF_INET) {
-            return &((reinterpret_cast<struct sockaddr_in*>(sa))->sin_addr);
+        if (sa->sa_family == AF_INET)
+        {
+            return &((reinterpret_cast<struct sockaddr_in *>(sa))->sin_addr);
         }
-        return &((reinterpret_cast<struct sockaddr_in6*>(sa))->sin6_addr);
+        return &((reinterpret_cast<struct sockaddr_in6 *>(sa))->sin6_addr);
     }
 
     bool initWSA()
     {
         WSADATA wsaData;
-        if (int rc{ WSAStartup(MAKEWORD(2, 2), &wsaData) }; rc != 0) {
+        if (int rc{WSAStartup(MAKEWORD(2, 2), &wsaData)}; rc != 0)
+        {
             std::cerr << "WSAStartup failed " << rc << '\n';
             return false;
         }
@@ -42,7 +43,8 @@ namespace UDPNS
     bool UDP::makeBuffers()
     {
         buf = new char[BUF_LEN];
-        if (buf == nullptr) {
+        if (buf == nullptr)
+        {
             return false;
         }
         return true;
@@ -50,7 +52,8 @@ namespace UDPNS
 
     void UDP::freeResults()
     {
-        if (results) {
+        if (results)
+        {
             freeaddrinfo(results);
             results = nullptr;
         }
@@ -58,29 +61,34 @@ namespace UDPNS
 
     bool UDP::gai(std::string_view host, std::string_view port)
     {
-        char* name{ nullptr };
-        char* serv{ nullptr };
-        struct addrinfo req {};
-        req.ai_family = AF_INET;    // IPv4
+        char *name{nullptr};
+        char *serv{nullptr};
+        struct addrinfo req{};
+        req.ai_family = AF_INET;      // IPv4
         req.ai_socktype = SOCK_DGRAM; // datagram (UDP)
 
-        if (host.empty()) {
+        if (host.empty())
+        {
             req.ai_flags = AI_PASSIVE; // use my IP
         }
-        else {
-            name = const_cast<char*>(host.data());
+        else
+        {
+            name = const_cast<char *>(host.data());
         }
 
-        if (port.empty()) {
-            serv = const_cast<char*>(MY_PORT.data());
+        if (port.empty())
+        {
+            serv = const_cast<char *>(MY_PORT.data());
         }
-        else {
-            serv = const_cast<char*>(port.data());
+        else
+        {
+            serv = const_cast<char *>(port.data());
         }
 
         freeResults(); // check and free <addrinfo* results>
 
-        if (auto rv{ getaddrinfo(name, serv, &req, &results) }; rv != GAI_OK) {
+        if (auto rv{getaddrinfo(name, serv, &req, &results)}; rv != GAI_OK)
+        {
             std::cerr << "getaddrinfo: " << rv << '\n';
             return false;
         }
@@ -91,30 +99,37 @@ namespace UDPNS
     bool UDP::createSocket(std::string_view host, std::string_view port, bool RX)
     {
 
-        if (rx != INVALID_SOCKET) {
+        if (rx != INVALID_SOCKET)
+        {
             std::cerr << "RX SOCKET ALIVE YET CREATING NEW ONE?!";
             return false;
         }
 
-        if (tx != INVALID_SOCKET) {
+        if (tx != INVALID_SOCKET)
+        {
             std::cerr << "RX SOCKET ALIVE YET CREATING NEW ONE?!";
             return false;
         }
 
-        if (!gai(host, port)) {
+        if (!gai(host, port))
+        {
             std::cerr << "GAI DEAD\n";
             return false;
         }
 
-        SOCKET sockfd{ INVALID_SOCKET };
-        for (target = results; target; target = target->ai_next) {
+        SOCKET sockfd{INVALID_SOCKET};
+        for (target = results; target; target = target->ai_next)
+        {
             if (sockfd = socket(target->ai_family, target->ai_socktype, target->ai_protocol);
-                sockfd == INVALID_SOCKET) {
+                sockfd == INVALID_SOCKET)
+            {
                 std::cerr << "socket miss\n";
                 continue;
             }
-            if (RX) {
-                if (bind(sockfd, target->ai_addr, static_cast<int>(target->ai_addrlen)) == SOCKET_ERROR) {
+            if (RX)
+            {
+                if (bind(sockfd, target->ai_addr, static_cast<int>(target->ai_addrlen)) == SOCKET_ERROR)
+                {
                     closesocket(sockfd);
                     std::cerr << "bind miss\n";
                     continue;
@@ -123,15 +138,18 @@ namespace UDPNS
             break; // this one is good so leave without setting to next addrinfo...
         }
 
-        if (target == nullptr) {
+        if (target == nullptr)
+        {
             std::cerr << "failed to get socket/bind\n";
             return false;
         }
 
-        if (RX) {
+        if (RX)
+        {
             rx = sockfd;
         }
-        else {
+        else
+        {
             tx = sockfd;
         }
         return true; // all good
@@ -147,7 +165,6 @@ namespace UDPNS
         return createSocket(host, port, false);
     }
 
-
     bool UDP::txAllocated()
     {
         return !(tx == INVALID_SOCKET);
@@ -160,11 +177,13 @@ namespace UDPNS
 
     bool UDP::receive()
     {
-        if (!rxAllocated()) {
+        if (!rxAllocated())
+        {
             std::cerr << "RX NOT ALLOCATED YET TRYING RECEIVE!\n";
             return false;
         }
-        if (rx_bytes = recv(rx, buf, BUF_LEN - 1, UDPNS::RECVFORM_FLAG); rx_bytes == -1) {
+        if (rx_bytes = recv(rx, buf, BUF_LEN - 1, UDPNS::RECVFORM_FLAG); rx_bytes == -1)
+        {
             std::cerr << "recvform error\n";
             return false;
         }
@@ -175,8 +194,9 @@ namespace UDPNS
     bool UDP::transmit(std::string_view msg)
     {
         if (tx_bytes = sendto(tx, msg.data(), static_cast<int>(msg.length()), UDPNS::SENDTO_FLAG,
-            target->ai_addr, static_cast<int>(target->ai_addrlen));
-            tx_bytes == -1) {
+                              target->ai_addr, static_cast<int>(target->ai_addrlen));
+            tx_bytes == -1)
+        {
             std::cerr << "send error\n";
             return false;
         }
@@ -186,15 +206,18 @@ namespace UDPNS
 
     void UDP::clearAll()
     {
-        if (rx != INVALID_SOCKET) {
+        if (rx != INVALID_SOCKET)
+        {
             closesocket(rx);
             rx = INVALID_SOCKET;
         }
-        if (tx != INVALID_SOCKET) {
+        if (tx != INVALID_SOCKET)
+        {
             closesocket(tx);
             tx = INVALID_SOCKET;
         }
-        if (buf) {
+        if (buf)
+        {
             delete[] buf;
             buf = nullptr;
         }
@@ -206,10 +229,5 @@ namespace UDPNS
     {
         clearAll();
     }
-
-    
-
-
-
 
 } // namespace UDPNS
