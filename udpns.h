@@ -1,7 +1,9 @@
-#ifndef H_UDPNS
-#define H_UDPNS
 // https://learn.microsoft.com/en-us/windows/win32/winsock/creating-a-basic-winsock-application
 // https://beej.us/guide/bgnet/
+
+#ifndef H_UDPNS
+#define H_UDPNS
+
 #ifdef UDPNS_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -24,17 +26,21 @@ namespace UDPNS
 {
 
 #ifdef UDPNS_WINDOWS
-    using sockfd_t = SOCKET;
+    using sfd_t = SOCKET;
+    using ai_addrlen_t = int;
+    using msg_len_t = int;
 #else
     using sockfd_t = int;
+    using ai_addrlen_t = socklen_t;
+    using msg_len_t = size_t;
 #endif
 
-const int GAI_OK{0};
+    const int GAI_OK{0};
 #ifdef UDPNS_WINDOWS
-    const sockfd_t BAD_SOCKET{INVALID_SOCKET};
+    const sfd_t BAD_SOCKET{INVALID_SOCKET};
     const int BAD_BIND{SOCKET_ERROR};
 #else
-    const sockfd_t BAD_SOCKET{-1};
+    const sfd_t BAD_SOCKET{-1};
     const int BAD_BIND{-1};
 #endif
     const int SENDTO_FLAG{0};
@@ -42,7 +48,7 @@ const int GAI_OK{0};
     const std::string_view MY_PORT{"4951"};
     const size_t BUF_LEN{100};
     const int ADDR_LEN{18};
-    
+
     void *get_in_addr(struct sockaddr *sa);
 #ifdef UDPNS_WINDOWS
     bool initWSA();
@@ -78,18 +84,18 @@ const int GAI_OK{0};
         void clearAll();
 
         // private: ŞİMDİLİK DEĞİLLER SONRADAN EKLICEZKE, ELEGANS OLCAK
-        sockfd_t tx{BAD_SOCKET};
-        sockfd_t rx{BAD_SOCKET};
+        sfd_t tx{BAD_SOCKET};
+        sfd_t rx{BAD_SOCKET};
         struct addrinfo *results{};
         struct addrinfo *target{};
         char *buf{nullptr};
-        #ifdef UDPNS_WINDOWS
+#ifdef UDPNS_WINDOWS
         size_t rx_bytes{};
         size_t tx_bytes{};
-        #else
+#else
         ssize_t rx_bytes{};
         ssize_t tx_bytes{};
-        #endif 
+#endif
     };
 } // namespace UDPNS
 

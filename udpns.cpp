@@ -110,7 +110,7 @@ namespace UDPNS
             return false;
         }
 
-        sockfd_t sockfd{BAD_SOCKET};
+        sfd_t sockfd{BAD_SOCKET};
         for (target = results; target; target = target->ai_next)
         {
             if (sockfd = socket(target->ai_family, target->ai_socktype, target->ai_protocol);
@@ -121,7 +121,7 @@ namespace UDPNS
             }
             if (RX)
             {
-                if (bind(sockfd, target->ai_addr, target->ai_addrlen) == BAD_BIND)
+                if (bind(sockfd, target->ai_addr, static_cast<ai_addrlen_t>(target->ai_addrlen)) == BAD_BIND)
                 {
 #ifdef UDPNS_WINDOWS
                     closesocket(sockfd);
@@ -190,8 +190,8 @@ namespace UDPNS
 
     bool UDP::transmit(std::string_view msg)
     {
-        if (tx_bytes = sendto(tx, msg.data(), static_cast<size_t>(msg.length()), SENDTO_FLAG,
-                              target->ai_addr, static_cast<socklen_t>(target->ai_addrlen));
+        if (tx_bytes = sendto(tx, msg.data(), static_cast<msg_len_t>(msg.length()), SENDTO_FLAG,
+                              target->ai_addr, static_cast<ai_addrlen_t>(target->ai_addrlen));
             tx_bytes == -1)
         {
             std::cerr << "send error\n";
