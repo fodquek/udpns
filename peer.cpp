@@ -1,8 +1,15 @@
-#include "udpns.h"
 #include <cassert>
 #include <iostream>
 #include <string_view>
 #include <thread>
+/** 
+  * Windows build macro, otherwise Ubuntu 20.04(only tested linux distro...)
+*/
+// #ifndef UDPNS_WINDOWS
+// #define UDPNS_WINDOWS
+// #endif
+#include "udpns.h"
+
 
 void receiveThread(std::string_view serv)
 {

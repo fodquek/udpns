@@ -1,4 +1,5 @@
 #include "udpns.h"
+#include <iostream>
 
 namespace UDPNS
 {
@@ -163,12 +164,12 @@ namespace UDPNS
 
     bool UDP::txAllocated()
     {
-        return !(tx == SOCKET_ERROR);
+        return !(tx == BAD_SOCKET);
     }
 
     bool UDP::rxAllocated()
     {
-        return !(rx == SOCKET_ERROR);
+        return !(rx == BAD_SOCKET);
     }
 
     bool UDP::receive()
@@ -189,8 +190,8 @@ namespace UDPNS
 
     bool UDP::transmit(std::string_view msg)
     {
-        if (tx_bytes = sendto(tx, msg.data(), static_cast<int>(msg.length()), SENDTO_FLAG,
-                              target->ai_addr, static_cast<int>(target->ai_addrlen));
+        if (tx_bytes = sendto(tx, msg.data(), static_cast<size_t>(msg.length()), SENDTO_FLAG,
+                              target->ai_addr, static_cast<socklen_t>(target->ai_addrlen));
             tx_bytes == -1)
         {
             std::cerr << "send error\n";
@@ -202,23 +203,23 @@ namespace UDPNS
 
     void UDP::clearAll()
     {
-        if (rx != SOCKET_ERROR)
+        if (rx != BAD_SOCKET)
         {
 #ifdef UDPNS_WINDOWS
             closesocket(rx);
 #else
             close(rx);
 #endif
-            rx = SOCKET_ERROR;
+            rx = BAD_SOCKET;
         }
-        if (tx != SOCKET_ERROR)
+        if (tx != BAD_SOCKET)
         {
 #ifdef UDPNS_WINDOWS
             closesocket(tx);
 #else
             close(tx);
 #endif
-            tx = SOCKET_ERROR;
+            tx = BAD_SOCKET;
         }
         if (buf)
         {

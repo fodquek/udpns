@@ -1,10 +1,7 @@
 #ifndef H_UDPNS
 #define H_UDPNS
-
-#ifndef UDPNS_WINDOWS
-#define UDPNS_WINDOWS
-#endif
-
+// https://learn.microsoft.com/en-us/windows/win32/winsock/creating-a-basic-winsock-application
+// https://beej.us/guide/bgnet/
 #ifdef UDPNS_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -22,7 +19,6 @@
 
 #include <cstdlib>
 #include <string_view>
-#include <iostream>
 
 namespace UDPNS
 {
@@ -46,7 +42,7 @@ const int GAI_OK{0};
     const std::string_view MY_PORT{"4951"};
     const size_t BUF_LEN{100};
     const int ADDR_LEN{18};
-
+    
     void *get_in_addr(struct sockaddr *sa);
 #ifdef UDPNS_WINDOWS
     bool initWSA();
@@ -87,8 +83,13 @@ const int GAI_OK{0};
         struct addrinfo *results{};
         struct addrinfo *target{};
         char *buf{nullptr};
+        #ifdef UDPNS_WINDOWS
         size_t rx_bytes{};
         size_t tx_bytes{};
+        #else
+        ssize_t rx_bytes{};
+        ssize_t tx_bytes{};
+        #endif 
     };
 } // namespace UDPNS
 
