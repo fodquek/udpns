@@ -30,7 +30,7 @@ namespace UDPNS
     using ai_addrlen_t = int;
     using msg_len_t = int;
 #else
-    using sockfd_t = int;
+    using sfd_t = int;
     using ai_addrlen_t = socklen_t;
     using msg_len_t = size_t;
 #endif
