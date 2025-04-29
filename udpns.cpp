@@ -110,7 +110,7 @@ namespace UDPNS
             return false;
         }
 
-        sfd_t sockfd{BAD_SOCKET};
+        auto sockfd{BAD_SOCKET};
         for (target = results; target; target = target->ai_next)
         {
             if (sockfd = socket(target->ai_family, target->ai_socktype, target->ai_protocol);
@@ -172,20 +172,23 @@ namespace UDPNS
         return !(rx == BAD_SOCKET);
     }
 
-    bool UDP::receive()
+    len_t UDP::receive()
     {
         if (!rxAllocated())
         {
             std::cerr << "RX NOT ALLOCATED YET TRYING RECEIVE!\n";
             return false;
         }
-        if (rx_bytes = recv(rx, buf, BUF_LEN - 1, RECVFORM_FLAG); rx_bytes == -1)
+        rx_bytes = recv(rx, buf, BUF_LEN - 1, MSG_PEEK);
+        if (rx_bytes == -1)
         {
             std::cerr << "recvform error\n";
-            return false;
+            return rx_bytes;
+        } else if (rx_bytes == 0) {
+            std::cerr << "recvfrom closed?\n";;
         }
         buf[rx_bytes] = '\0';
-        return true;
+        return rx_bytes;
     }
 
     bool UDP::transmit(std::string_view msg)

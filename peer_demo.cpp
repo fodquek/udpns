@@ -15,12 +15,13 @@ void receiveThread(std::string_view serv)
     std::cout << "RX UP\n";
     while (true)
     {
-        if (!udpRX.receive())
+        auto res {udpRX.receive()};
+        if (res == -1)
         {
             std::cerr << "RECEIVE ERR\n";
             return;
         }
-        std::cout << ">>> " << udpRX.buf << " <<<\n";
+        std::cout << "> " << res << " > " << udpRX.buf << " <<<\n";
         if (std::string_view(udpRX.buf) == "KAPAT")
         {
             std::cout << "RX KAPAT GELDI\n";

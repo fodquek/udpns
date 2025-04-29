@@ -26,21 +26,23 @@ namespace UDPNS
 {
 
 #ifdef UDPNS_WINDOWS
-    using sfd_t = SOCKET;
+    using sock_fd_t = SOCKET;
     using ai_addrlen_t = int;
     using msg_len_t = int;
+    using len_t = size_t;
 #else
-    using sfd_t = int;
+    using sock_fd_t = int;
     using ai_addrlen_t = socklen_t;
     using msg_len_t = size_t;
+    using len_t = ssize_t;
 #endif
 
     const int GAI_OK{0};
 #ifdef UDPNS_WINDOWS
-    const sfd_t BAD_SOCKET{INVALID_SOCKET};
+    const sock_fd_t BAD_SOCKET{INVALID_SOCKET};
     const int BAD_BIND{SOCKET_ERROR};
 #else
-    const sfd_t BAD_SOCKET{-1};
+    const sock_fd_t BAD_SOCKET{-1};
     const int BAD_BIND{-1};
 #endif
     const int SENDTO_FLAG{0};
@@ -78,24 +80,19 @@ namespace UDPNS
         bool txAllocated();
         bool rxAllocated();
 
-        bool receive();
+        len_t receive();
         bool transmit(std::string_view msg);
 
         void clearAll();
 
         // private: ŞİMDİLİK DEĞİLLER SONRADAN EKLICEZKE, ELEGANS OLCAK
-        sfd_t tx{BAD_SOCKET};
-        sfd_t rx{BAD_SOCKET};
+        sock_fd_t tx{BAD_SOCKET};
+        sock_fd_t rx{BAD_SOCKET};
         struct addrinfo *results{};
         struct addrinfo *target{};
         char *buf{nullptr};
-#ifdef UDPNS_WINDOWS
-        size_t rx_bytes{};
-        size_t tx_bytes{};
-#else
-        ssize_t rx_bytes{};
-        ssize_t tx_bytes{};
-#endif
+        len_t rx_bytes{};
+        len_t tx_bytes{};
     };
 } // namespace UDPNS
 
